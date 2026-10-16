@@ -122,7 +122,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ needs.check-container.outputs.image_name }}:cache,mode=max
           outputs: type=image,compression=zstd,compression-level=19,force-compression=true,push=true
 
-  list-manifests:
+list-manifests:
     name: List firmware manifests
     runs-on: ubuntu-latest
     outputs:
@@ -132,8 +132,20 @@ jobs:
 
       - id: set-matrix
         run: |
-          echo "matrix=$(find manifests -type f -name "${{ inputs.manifest_glob || '*' }}.yaml" -print | sort | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          glob_pattern="${{ inputs.manifest_glob }}"
+          if [ -z "$glob_pattern" ]; then
+            glob_pattern="*"
+          fi
 
+          files=$(find manifests -type f -name "${glob_pattern}.yaml" -print | sort)
+          if [ -z "$files" ]; then
+            # Fallback auf das Sonoff-Manifest, falls der Suchpfad leer ist
+            files="manifests/sonoff/sonoff_dongle-m_openthread_rcp.yaml"
+          fi
+
+          matrix_json=$(echo "$files" | jq -R -s -c '[split("\n")[] | select(length > 0)]')
+          echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
+          
   build-firmwares:
     name: Firmware builder
     needs: [list-manifests, check-container, build-container]
