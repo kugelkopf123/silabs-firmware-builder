@@ -32,7 +32,7 @@ RUN set -e \
         ninja/1.12.1 \
         commander/1.24.3 \
         slc-cli/6.0.23 \
-        simplicity-sdk/2026.6.1 \
+        simplicity-sdk/2026.6.2 \
         zap/2026.06.17 \
     # Unused, remove to save space
     && slt --non-interactive uninstall --force llvm-arm-toolchain-for-embedded \
