@@ -10,6 +10,7 @@ FROM debian:trixie-slim AS slt-toolchain
 ARG TARGETARCH
 
 # Set up slt and conan (using local file)
+ARG CACHE_BUST=1
 COPY slt.zip /tmp/slt.zip
 RUN set -e \
     && apt-get update && apt-get install -y --no-install-recommends \
@@ -21,7 +22,7 @@ RUN set -e \
     && rm -rf /var/lib/apt/lists/* \
     && bsdtar -xf /tmp/slt.zip -C /usr/bin && rm /tmp/slt.zip \
     && chmod +x /usr/bin/slt \
-    && slt --verbose --non-interactive install conan
+    && slt --non-interactive install conan
     
 # Install toolchain via slt
 RUN set -e \
