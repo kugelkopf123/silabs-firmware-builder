@@ -21,7 +21,7 @@ RUN set -e \
     && rm -rf /var/lib/apt/lists/* \
     && bsdtar -xf /tmp/slt.zip -C /usr/bin && rm /tmp/slt.zip \
     && chmod +x /usr/bin/slt \
-    && slt --non-interactive install conan
+    && slt --verbose --non-interactive install conan
     
 # Install toolchain via slt
 RUN set -e \
