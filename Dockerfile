@@ -15,17 +15,16 @@ RUN set -e \
         jq \
         aria2 \
         ca-certificates \
-        # Required by conan
         libarchive-tools \
         bzip2 \
         unzip \
     && rm -rf /var/lib/apt/lists/* \
-    && aria2c -o slt.zip \
+    && aria2c --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -o slt.zip \
         https://www.silabs.com/documents/public/software/slt-cli-1.2.1-linux-x64.zip \
     && bsdtar -xf slt.zip -C /usr/bin && rm slt.zip \
     && chmod +x /usr/bin/slt \
     && slt --non-interactive install conan
-
+    
 # Install toolchain via slt
 RUN set -e \
     # https://updates.silabs.com/studio/v6/updates/update_site/manifest.zip
@@ -52,7 +51,7 @@ RUN set -e \
     # slc needs a wrapper script because it uses $(dirname "$0") to find slc.jar
     && printf '#!/bin/sh\nexec "%s/slc" "$@"\n' "$(slt where slc-cli)" > /root/.silabs/slt/bin/slc \
     && chmod +x /root/.silabs/slt/bin/slc
-
+    
 # Final image
 FROM debian:trixie-slim
 ARG TARGETARCH
