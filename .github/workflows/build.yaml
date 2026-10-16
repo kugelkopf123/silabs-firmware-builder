@@ -122,7 +122,7 @@ jobs:
           cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ needs.check-container.outputs.image_name }}:cache,mode=max
           outputs: type=image,compression=zstd,compression-level=19,force-compression=true,push=true
 
-list-manifests:
+  list-manifests:
     name: List firmware manifests
     runs-on: ubuntu-latest
     outputs:
@@ -139,13 +139,12 @@ list-manifests:
 
           files=$(find manifests -type f -name "${glob_pattern}.yaml" -print | sort)
           if [ -z "$files" ]; then
-            # Fallback auf das Sonoff-Manifest, falls der Suchpfad leer ist
             files="manifests/sonoff/sonoff_dongle-m_openthread_rcp.yaml"
           fi
 
           matrix_json=$(echo "$files" | jq -R -s -c '[split("\n")[] | select(length > 0)]')
           echo "matrix=$matrix_json" >> $GITHUB_OUTPUT
-          
+
   build-firmwares:
     name: Firmware builder
     needs: [list-manifests, check-container, build-container]
@@ -162,11 +161,7 @@ list-manifests:
       - name: Build firmware
         id: build-firmware
         run: |
-          # GHA's `container:` sets HOME=/github/home, but slc-cli's adapter-pack
-          # discovery scans $HOME/.silabs/... where slt put everything during the
-          # image build (HOME=/root). Restore it for this step.
           export HOME=/root
-
           /opt/venv/bin/python3 tools/build_project.py \
             --manifest "${{ matrix.manifest }}" \
             --build-dir build \
@@ -177,7 +172,6 @@ list-manifests:
             --repo-owner "$GITHUB_REPOSITORY_OWNER" \
             --repo-hash $(git rev-parse --short=8 "$GITHUB_SHA")
 
-          # Get the basename of the GBL in `outputs`
           output_basename=$(basename -- $(basename -- $(ls -1 outputs/*.gbl | head -n 1)) .gbl)
           echo "output_basename=$output_basename" >> $GITHUB_OUTPUT
 
