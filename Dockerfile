@@ -9,19 +9,17 @@ RUN UV_PYTHON_INSTALL_DIR=/opt/pythons uv venv -p 3.14 /opt/venv --no-cache \
 FROM debian:trixie-slim AS slt-toolchain
 ARG TARGETARCH
 
-# Set up slt and conan
+# Set up slt and conan (using local file)
+COPY slt.zip /tmp/slt.zip
 RUN set -e \
     && apt-get update && apt-get install -y --no-install-recommends \
         jq \
-        aria2 \
         ca-certificates \
         libarchive-tools \
         bzip2 \
         unzip \
     && rm -rf /var/lib/apt/lists/* \
-    && aria2c --user-agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" -o slt.zip \
-        https://www.silabs.com/documents/public/software/slt-cli-1.2.1-linux-x64.zip \
-    && bsdtar -xf slt.zip -C /usr/bin && rm slt.zip \
+    && bsdtar -xf /tmp/slt.zip -C /usr/bin && rm /tmp/slt.zip \
     && chmod +x /usr/bin/slt \
     && slt --non-interactive install conan
     
