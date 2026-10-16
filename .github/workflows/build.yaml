@@ -139,7 +139,7 @@ jobs:
 
           files=$(find manifests -type f -name "${glob_pattern}.yaml" -print | sort)
           if [ -z "$files" ]; then
-            files="manifests/sonoff/sonoff_dongle-m_openthread_rcp.yaml"
+            files="manifests/sonoff/sonoff_dongle-pmg24_openthread_rcp.yaml"
           fi
 
           matrix_json=$(echo "$files" | jq -R -s -c '[split("\n")[] | select(length > 0)]')
